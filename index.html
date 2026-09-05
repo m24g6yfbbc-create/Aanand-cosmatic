@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anand Cosmetic</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:#faf7fb;color:#222}
+header{background:linear-gradient(135deg,#5b16c9,#8b2cf5);color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:1100px;margin:auto}
+h1{margin:0;font-size:25px}.tag{font-size:13px;opacity:.9}.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}
+.admin{background:white;color:#5b16c9}.cartbtn{background:#ffcf3f;color:#222}
+main{max-width:1100px;margin:auto;padding:18px}
+.hero{background:white;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 3px 15px #00000012}
+.hero h2{margin:0 0 8px;color:#5b16c9}.filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.filter{background:#eee;color:#333}.filter.active{background:#5b16c9;color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:15px}
+.card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 3px 14px #00000014}
+.card img{width:100%;height:180px;object-fit:cover;background:#eee}.info{padding:12px}
+.name{font-weight:bold;font-size:16px}.cat{font-size:12px;color:#777;margin:5px 0}.price{color:#5b16c9;font-weight:bold;font-size:18px;margin:8px 0}
+.add{width:100%;background:#5b16c9;color:white}.empty{text-align:center;padding:45px;color:#777}
+.cart{position:fixed;right:14px;bottom:14px;width:min(390px,calc(100% - 28px));background:white;border-radius:18px;box-shadow:0 8px 35px #0004;padding:16px;display:none;z-index:10}
+.cart.show{display:block}.cartrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee}
+.whatsapp{width:100%;background:#25D366;color:white;margin-top:12px;font-size:16px}
+footer{text-align:center;padding:30px;color:#666;font-size:13px}
+</style>
+</head>
+<body>
+<header><div class="top"><div><h1>✨ Anand Cosmetic</h1><div class="tag">Beauty & Hair Care Products</div></div><div><button class="btn admin" onclick="location.href='admin.html'">Admin</button> <button class="btn cartbtn" onclick="toggleCart()">🛒 <span id="cartCount">0</span></button></div></div></header>
+<main>
+<section class="hero"><h2>Welcome to Anand Cosmetic</h2><div id="welcome">Buy your favourite beauty and hair-care products. Cash on Delivery available.</div></section>
+<div class="filters"><button class="btn filter active" onclick="setFilter('All',this)">All</button><button class="btn filter" onclick="setFilter('Hair Care',this)">Hair Care</button><button class="btn filter" onclick="setFilter('Hair Color',this)">Hair Color</button><button class="btn filter" onclick="setFilter('Skin Care',this)">Skin Care</button><button class="btn filter" onclick="setFilter('Other',this)">Other</button></div>
+<div id="products" class="grid"></div>
+</main>
+<div id="cart" class="cart"><h3 style="margin-top:0">Your Cart</h3><div id="cartItems"></div><h3 id="total"></h3><button class="btn whatsapp" onclick="orderWhatsApp()">Order on WhatsApp (COD)</button><button class="btn" style="width:100%;margin-top:8px" onclick="toggleCart()">Close</button></div>
+<footer>© Anand Cosmetic • Cash on Delivery • Contact: 7974655133</footer>
+<script>
+const phone='917974655133';
+let filter='All',cart=JSON.parse(localStorage.getItem('ac_cart')||'[]');
+function products(){return JSON.parse(localStorage.getItem('ac_products')||'[]')}
+function saveCart(){localStorage.setItem('ac_cart',JSON.stringify(cart));updateCartCount()}
+function render(){
+ let p=products().filter(x=>filter==='All'||x.category===filter);
+ const box=document.getElementById('products');
+ if(!p.length){box.innerHTML='<div class="empty">No products yet. The shop owner will add products soon.</div>';return}
+ box.innerHTML=p.map(x=>`<div class="card"><img src="${x.image||''}" alt="${x.name}"><div class="info"><div class="name">${x.name}</div><div class="cat">${x.category}</div><div class="price">₹${x.price}</div><button class="btn add" onclick="addCart('${x.id}')">Add to Cart</button></div></div>`).join('');
+}
+function setFilter(v,b){filter=v;document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}
+function addCart(id){let p=products().find(x=>x.id===id);if(p){cart.push(p);saveCart();alert('Added to cart!')}}
+function updateCartCount(){document.getElementById('cartCount').textContent=cart.length}
+function toggleCart(){document.getElementById('cart').classList.toggle('show');renderCart()}
+function renderCart(){let box=document.getElementById('cartItems');box.innerHTML=cart.length?cart.map((x,i)=>`<div class="cartrow"><span>${x.name}</span><span>₹${x.price} <button onclick="cart.splice(${i},1);saveCart();renderCart()">❌</button></span></div>`).join(''):'Your cart is empty';document.getElementById('total').textContent=cart.length?'Total: ₹'+cart.reduce((s,x)=>s+Number(x.price),0):''}
+function orderWhatsApp(){if(!cart.length)return alert('Your cart is empty');let msg='Hello Anand Cosmetic! I want to order:%0A%0A'+cart.map(x=>'- '+x.name+' | ₹'+x.price).join('%0A')+'%0A%0ATotal: ₹'+cart.reduce((s,x)=>s+Number(x.price),0)+'%0A%0APayment: Cash on Delivery';window.open('https://wa.me/'+phone+'?text='+msg,'_blank')}
+updateCartCount();render();
+</script>
+</body></html>
